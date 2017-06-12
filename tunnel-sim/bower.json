@@ -1,0 +1,31 @@
+{
+  "name": "led-tunnel-sim",
+  "homepage": "https://github.com/prmakerspace/led-tunnel",
+  "authors": [
+    "plong0"
+  ],
+  "description": "LED Tunnel Simulator",
+  "main": "index.html",
+  "keywords": [
+    "fadecandy",
+    "open",
+    "pixel",
+    "control",
+    "led",
+    "ws2812",
+    "art"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "three.js": "^0.85.0",
+    "reset-css": "^2.2.0"
+  }
+}
