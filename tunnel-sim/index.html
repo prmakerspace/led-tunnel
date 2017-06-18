@@ -3,7 +3,8 @@
     <head>
         <title>LED Tunnel Simulator</title>
 
-        <script src="bower_components/three.js/three.js"></script>
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <!--script src="bower_components/three.js/three.js"></script-->
         <script src="libs/Detector.js"></script>
 
         <script src="engine.js"></script>
@@ -12,12 +13,29 @@
     <body>
         <h1>LED Tunnel Simulator</h1>
 
-        <div id="container"></div>
+        <div id="world"></div>
+        <div id="hud"></div>
 
         
         <script type="text/javascript">
             if (SIM) {
-                SIM.activate();
+                var config = {
+                    LEDs: {
+                    },
+                    Socket: {
+                        host: '127.0.0.1',
+                        port: 7891
+                    },
+                    UI: {
+                        selector: '#hud'
+                    },
+                    WebGL: {
+                        selector: '#world'
+                    },
+                    World: {
+                    }
+                };
+                SIM.activate(config);
             }
         </script>
     </body>
