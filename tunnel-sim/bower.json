@@ -26,6 +26,7 @@
   ],
   "dependencies": {
     "three.js": "^0.85.0",
-    "reset-css": "^2.2.0"
+    "reset-css": "^2.2.0",
+    "jquery": "^3.2.1"
   }
 }
