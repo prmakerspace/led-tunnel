@@ -67,12 +67,14 @@ var SIM = (function(){
     setConnectionStatus(status) {
       if (!this.connectionStatus && this.HUD) {
         this.connectionStatus = $('<div class="connection-status"></div>');
+        this.connectionStatus.append($('<label>Server:</label>'));
+        this.connectionStatus.append($('<span class="value"></span>'));
         this.HUD.append(this.connectionStatus);
       }
       if (this.connectionStatus) {
         var oldStatus = this.connectionStatus.data('status');
         if (status != oldStatus) {
-          this.connectionStatus.html(status);
+          this.connectionStatus.children('.value').first().html(status);
           if (oldStatus) {
             this.connectionStatus.removeClass('status-'+oldStatus.toLowerCase());
           }
@@ -81,6 +83,17 @@ var SIM = (function(){
           }
           this.connectionStatus.data('status', status || null);
         }
+      }
+    },
+    setLEDCount(ledCount){
+      if (!this.ledCount && this.HUD) {
+        this.ledCount = $('<div class="led-count"></div>');
+        this.ledCount.append($('<label>LED Count:</label>'));
+        this.ledCount.append($('<span class="value"></span>'));
+        this.HUD.append(this.ledCount);
+      }
+      if (this.ledCount) {
+        this.ledCount.children('.value').first().html(ledCount);
       }
     }
   };
@@ -137,12 +150,17 @@ var SIM = (function(){
           });
         }
       }
+      else if (Array.isArray(config.layout)) {
+        self.setLayout(config.layout);
+      }
     },
     setLayout: function(pixels) {
       console.log('Initializing Virtual LEDs...');
 
       console.log('SET LAYOUT =>', pixels);
       // @TODO: initialize LED meshes, each with an individual texture/material
+
+      UI.setLEDCount((pixels && pixels.length) || 0);
 
       console.log('Virtual LEDs initialized!');
     },
