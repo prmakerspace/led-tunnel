@@ -35,10 +35,23 @@ cd fadecandy/server/ &&
 ./fcserver config.json
 ```
 
-#### 2. Open the web-based simular
+#### 2. Run the web-based simular
 
+To start a simple python webserver, open a terminal to the led-tunnel directory and run:
 
-Use your web browser to open the **tunnel-sim/index.html** file.  The simulator connects to the *fcserver* and acts only as an output - it does not have any control over the lights!
+```
+cd tunnel-sim &&
+python -m SimpleHTTPServer 8000
+```
+
+In a browser, open: http://localhost:8000
+
+The simulator connects to the *fcserver* and acts only as an output - it does not have any control over the lights!
+
+You can use the browser's built-in developer tools / javascript console to see log messages from the simulator.
+
+*You can use any webserver, the python one is really quick and simple.  Simply opening the index.html in the browser will not work because the javascript loads certain resources using ajax requests.*
+
 
 #### 3. Code some cool effects!
 

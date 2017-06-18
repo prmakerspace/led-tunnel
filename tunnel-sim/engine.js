@@ -55,7 +55,7 @@ var SIM = (function(){
     },
     packetReceived: function(event) {
       // @TODO: parse event and call LEDs.update(...);
-      console.log('Packet received =>', event);
+      //console.log('Packet received =>', event);
     }
   };
 
@@ -101,8 +101,49 @@ var SIM = (function(){
   var LEDs = {
     init: function(config) {
       config = config || {};
+      console.log('Loading LED layout...');
+      var self = this;
+      if (typeof config.layout == 'string') {
+        if (config.layout.substr(config.layout.length - 5) == '.json') {
+          // load the layout as a json array
+          $.getJSON(config.layout)
+          .done(function(data) {
+            console.log('LED Layout loaded!');
+            self.setLayout(data);
+          })
+          .fail(function(error) {
+            console.error('LED Layout could not be loaded:', error.statusText);
+          });
+        }
+        else if (config.layout.substr(config.layout.length - 3) == '.js') {
+          // use $.ajax instead of $.getScript so it doesn't affect global scope
+          $.ajax(config.layout, { dataType: 'text' })
+          .done(function(data) {
+            // stash the console.log function
+            var consoleLog = console.log;
+            // override it with a do-nothing function (silence!)
+            console.log = function(){};
+            // evaluate the script
+            eval(data)
+            // restore the console.log
+            console.log = consoleLog;
+
+            console.log('LED Layout loaded!');
+            // setLayout with whatever variable script set it into
+            self.setLayout(eval(config.layoutVar || 'model'));
+          })
+          .fail(function(error) {
+            console.error('LED Layout could not be loaded:', error.statusText);
+          });
+        }
+      }
+    },
+    setLayout: function(pixels) {
       console.log('Initializing Virtual LEDs...');
+
+      console.log('SET LAYOUT =>', pixels);
       // @TODO: initialize LED meshes, each with an individual texture/material
+
       console.log('Virtual LEDs initialized!');
     },
     update: function(pixels) {
