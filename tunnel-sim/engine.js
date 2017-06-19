@@ -54,8 +54,15 @@ var SIM = (function(){
       console.log('Disconnected from fcserver!');
     },
     packetReceived: function(event) {
-      // @TODO: parse event and call LEDs.update(...);
-      //console.log('Packet received =>', event);
+      if (event && event.data) {
+        var data = new Uint8Array(event.data);
+        if (data.length > 4) {
+          var channel = data[0];
+          var command = data[1]
+          var pixels = data.slice(4);
+          LEDs.update(pixels);
+        }
+      }
     }
   };
 
@@ -250,12 +257,22 @@ var SIM = (function(){
               z: 0
             },
             color: {
-              r: 1.0,
-              g: 1.0,
-              b: 1.0
+              r: 0.0,
+              g: 0.0,
+              b: 0.0
             },
             mesh: null,
-            texture: null
+            texture: null,
+            setColor: function(r, g, b) {
+              this.color.r = r;
+              this.color.g = g;
+              this.color.b = b;
+              if (this.texture) {
+                this.texture.color.r = this.color.r;
+                this.texture.color.g = this.color.g;
+                this.texture.color.b = this.color.b;
+              }
+            }
           };
           if (typeof rawPixel == 'object' && Array.isArray(rawPixel.point)) {
             for (var j=0; j < pixelOrder.length && j < rawPixel.point.length; j++) {
@@ -286,7 +303,28 @@ var SIM = (function(){
     },
     update: function(pixels) {
       // pixels should be a one-dimensional array of RGB values
-      // @TODO: update the colours of the LEDs using the pixel array
+      if (pixels && this.pixels && pixels.length && this.pixels.length) {
+        var color;
+        var index = 0;
+        for (var i=0; i < pixels.length; i++) {
+          if (!color) {
+            color = { R: pixels[i]/255 };
+          }
+          else if (!color.hasOwnProperty('G')) {
+            color.G = pixels[i]/255;
+          }
+          else if (!color.hasOwnProperty('B')) {
+            color.B = pixels[i]/255;
+          }
+          if (color.hasOwnProperty('B')) {
+            // pixel is complete
+            if (index < this.pixels.length) {
+              this.pixels[index++].setColor(color.R, color.G, color.B);
+            }
+            color = undefined;
+          }
+        }
+      }
     }
   };
 
