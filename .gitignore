@@ -1,3 +1,4 @@
 tunnel-sim/bower_components/
 fadecandy/
 .DS_Store
+*.pyc

@@ -155,13 +155,39 @@ var SIM = (function(){
       config = config || {};
       this.cameras = {};
       this.activeCamera = '';
-      if (config.perspective) {
-        this.initPerspectiveCamera(config.perspective);
-        this.activeCamera = 'perspective';
+      for (var name in config.setup) {
+        if (config.setup.hasOwnProperty(name)) {
+          var camera = config.setup[name];
+          if (camera.type == 'orthographic') {
+            this.cameras[name] = this.initOrthographicCamera(camera);
+          }
+          else if (camera.type == 'perspective') {
+            this.cameras[name] = this.initPerspectiveCamera(camera);
+          }
+          if (this.cameras[name] && !this.activeCamera) {
+            this.activeCamera = name;
+          }
+        }
+      }
+      if (config.activate && this.cameras[config.activate]) {
+        this.activeCamera = config.activate;
       }
       if (!this.activeCamera) {
         throw 'No camera selected!';
       }
+    },
+    initOrthographicCamera: function(config) {
+      config = config || {};
+      config.aspect = config.aspect || (this.config.viewport.width/this.config.viewport.height);
+
+      var orthoCamera = new THREE.OrthographicCamera( config.width/-2, config.width/2, config.height/2, config.height/-2, config.near, config.far); 
+      orthoCamera.position.x = config.position.x;
+      orthoCamera.position.y = config.position.y;
+      orthoCamera.position.z = config.position.z;
+      if (config.focus) {
+        orthoCamera.lookAt(new THREE.Vector3(config.focus.x, config.focus.y, config.focus.z));
+      }
+      return orthoCamera;
     },
     initPerspectiveCamera: function(config) {
       config = config || {};
@@ -174,7 +200,7 @@ var SIM = (function(){
       if (config.focus) {
         perspCamera.lookAt(new THREE.Vector3(config.focus.x, config.focus.y, config.focus.z));
       }
-      this.cameras.perspective = perspCamera;
+      return perspCamera;
     },
     initLights: function(config) {
       config = config || {};
@@ -257,9 +283,9 @@ var SIM = (function(){
               z: 0
             },
             color: {
-              r: 0.0,
-              g: 0.0,
-              b: 0.0
+              r: 1.0,
+              g: 1.0,
+              b: 1.0
             },
             mesh: null,
             texture: null,
