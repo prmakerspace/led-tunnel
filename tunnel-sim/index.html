@@ -4,7 +4,7 @@
         <title>LED Tunnel Simulator</title>
 
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
-        <!--script src="bower_components/three.js/three.js"></script-->
+        <script src="bower_components/three.js/three.js"></script>
         <script src="libs/Detector.js"></script>
 
         <script src="engine.js"></script>
@@ -21,7 +21,15 @@
             if (SIM) {
                 var config = {
                     LEDs: {
-                        layout: 'libs/layouts/grid8x8.json'
+                        layout: 'libs/layouts/grid8x8.json',
+                        order: ['x','z','y'],
+                        anchor: {x: 0, y: 60, z: -75-30},
+                        scale: {x: 3.125/1.75, y: 3.125/1.75, z: 1.0},
+                        mesh: {
+                            width: 3.125/8,
+                            height: 3.125/8,
+                            depth: 0.125
+                        }
                     },
                     Socket: {
                         host: '127.0.0.1',
@@ -34,6 +42,42 @@
                         selector: '#world'
                     },
                     World: {
+                        selector: '#world',
+                        viewport: {
+                            width: 800,
+                            height: 600,
+                        },
+                        meshes: {
+                            ground: {
+                                width: 150,
+                                depth: 150,
+                                height: 1
+                            },
+                            tent: {
+                                width: 120,
+                                depth: 120,
+                                height: 120
+                            }
+                        },
+                        cameras: {
+                            perspective: {
+                                FOV: 90,
+                                aspect: 800/600,
+                                near: 0.1,
+                                far: 250,
+                                position: {
+                                    x: 0,
+                                    y: 60,
+                                    z: -75-36
+                                },
+                                focus: {
+                                    x: 0,
+                                    y: 54,
+                                    z: 0
+                                }
+                            }
+                        },
+                        lights: {}
                     }
                 };
                 SIM.activate(config);
