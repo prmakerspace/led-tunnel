@@ -4,7 +4,7 @@ var SIM = (function(){
   var engine = {
     activate: function(config){
       console.log('LED SIMULATOR ACTIVATING...');
-      config = config || {};
+      this.config = config || {};
       if (Detector.webgl) {
         init(config);
         console.log('LED SIMULATOR ACTIVATED!');
@@ -19,7 +19,7 @@ var SIM = (function(){
 
   // Private members
   function init(config) {
-    config = config || {};
+    this.config = config || {};
     UI.init(config.UI);
     Socket.init(config.Socket);
     World.init(config.World);
@@ -28,7 +28,7 @@ var SIM = (function(){
 
   var Socket = {
     init: function(config) {
-      config = config || {};
+      this.config = config || {};
       this.isConnected = false;
       console.log('Connecting to fcserver...');
       // Connect to a Fadecandy server running on the same computer, on a port configured to relay
@@ -61,7 +61,7 @@ var SIM = (function(){
 
   var UI = {
     init: function(config) {
-      config = config || {};
+      this.config = config || {};
       this.HUD = $(config.selector || '#HUD');
     },
     setConnectionStatus(status) {
@@ -100,20 +100,98 @@ var SIM = (function(){
 
   var World = {
     init: function(config) {
-      config = config || {};
+      this.config = config || {};
       console.log('Initializing simulation world...');
-      // @TODO: initialize the simulation environment
+      // initialize the simulation environment
+      this.scene = new THREE.Scene();
+      this.renderer = new THREE.WebGLRenderer();
+      this.renderer.setSize(this.config.viewport.width, this.config.viewport.height);
+      $(config.selector).append(this.renderer.domElement);
+      this.initMeshes(config.meshes);
+      this.initCameras(config.cameras);
+      this.initLights(config.lights);
       console.log('Simulation world initialized!');
       this.animate();
     },
+    initMeshes: function(config) {
+      config = config || {};
+      this.meshes = {};
+      this.textures = {};
+
+      var ground = new THREE.CubeGeometry(config.ground.width, config.ground.height, config.ground.depth);
+      this.textures.ground = new THREE.MeshBasicMaterial( { color: 0x009900 } );
+      this.meshes.ground = new THREE.Mesh(ground, this.textures.ground);
+      this.scene.add(this.meshes.ground);
+
+      var post = new THREE.CubeGeometry(4, config.tent.height, 4);
+      this.textures.post = new THREE.MeshBasicMaterial( { color: 0x333333 } );
+      this.meshes.posts = [];
+      for (var i=0; i < 4; i++) {
+        this.meshes.posts.push(new THREE.Mesh(post, this.textures.post));
+        this.scene.add(this.meshes.posts[i]);
+        this.meshes.posts[i].position.y = config.tent.height/2.0;
+      }
+      // front-left
+      this.meshes.posts[0].position.x = -config.tent.width/2.0;
+      this.meshes.posts[0].position.z = -config.tent.depth/2.0;
+      // back-left
+      this.meshes.posts[1].position.x = -config.tent.width/2.0;
+      this.meshes.posts[1].position.z = config.tent.depth/2.0;
+      // back-right
+      this.meshes.posts[2].position.x = config.tent.width/2.0;
+      this.meshes.posts[2].position.z = config.tent.depth/2.0;
+      // front-right
+      this.meshes.posts[3].position.x = config.tent.width/2.0;
+      this.meshes.posts[3].position.z = -config.tent.depth/2.0;
+    },
+    initCameras: function(config) {
+      config = config || {};
+      this.cameras = {};
+      this.activeCamera = '';
+      if (config.perspective) {
+        this.initPerspectiveCamera(config.perspective);
+        this.activeCamera = 'perspective';
+      }
+      if (!this.activeCamera) {
+        throw 'No camera selected!';
+      }
+    },
+    initPerspectiveCamera: function(config) {
+      config = config || {};
+      config.aspect = config.aspect || (this.config.viewport.width/this.config.viewport.height);
+
+      var perspCamera = new THREE.PerspectiveCamera(config.FOV, config.aspect, config.near, config.far); 
+      perspCamera.position.x = config.position.x;
+      perspCamera.position.y = config.position.y;
+      perspCamera.position.z = config.position.z;
+      if (config.focus) {
+        perspCamera.lookAt(new THREE.Vector3(config.focus.x, config.focus.y, config.focus.z));
+      }
+      this.cameras.perspective = perspCamera;
+    },
+    initLights: function(config) {
+      config = config || {};
+
+      this.lights = {};
+
+      var hemLight = new THREE.HemisphereLight(0xFFFFFF, 0xFFFFFF, 1.0);
+      this.lights.hemisphere = hemLight;
+      this.scene.add(this.lights.hemisphere);
+    },
     animate: function() {
-      // @TODO: nothing really, this is the main animation loop, but most (all?) of our updates come from the socket
+      requestAnimationFrame(World.animate);
+      World.render();
+    },
+    render: function() {
+      if (this.scene && this.activeCamera && this.cameras[this.activeCamera]) {
+        this.renderer.render(this.scene, this.cameras[this.activeCamera]);
+      }
     }
   };
 
   var LEDs = {
     init: function(config) {
-      config = config || {};
+      this.config = config || {};
       console.log('Loading LED layout...');
       var self = this;
       if (typeof config.layout == 'string') {
