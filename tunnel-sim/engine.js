@@ -194,6 +194,9 @@ var SIM = (function(){
       this.config = config || {};
       console.log('Loading LED layout...');
       var self = this;
+      this.ledGeometry = new THREE.CubeGeometry( config.mesh.width, config.mesh.height, config.mesh.depth);
+      this.ledTexture = new THREE.MeshPhongMaterial( { color: 0xFFFFFF, specular: 0xFFFFFF, shininess: 20 } );
+
       if (typeof config.layout == 'string') {
         if (config.layout.substr(config.layout.length - 5) == '.json') {
           // load the layout as a json array
@@ -234,13 +237,52 @@ var SIM = (function(){
     },
     setLayout: function(pixels) {
       console.log('Initializing Virtual LEDs...');
-
-      console.log('SET LAYOUT =>', pixels);
-      // @TODO: initialize LED meshes, each with an individual texture/material
-
-      UI.setLEDCount((pixels && pixels.length) || 0);
-
+      this.pixels = [];
+      if (pixels) {
+        // pixelOrder defines the order the layout defines array points in
+        var pixelOrder = this.config.order || ['x', 'y', 'z'];
+        for (var i=0; i < pixels.length; i++) {
+          var rawPixel = pixels[i];
+          var pixel = {
+            point: {
+              x: 0,
+              y: 0,
+              z: 0
+            },
+            color: {
+              r: 1.0,
+              g: 1.0,
+              b: 1.0
+            },
+            mesh: null,
+            texture: null
+          };
+          if (typeof rawPixel == 'object' && Array.isArray(rawPixel.point)) {
+            for (var j=0; j < pixelOrder.length && j < rawPixel.point.length; j++) {
+              // pixelOrder[j] is the axis that rawPixel.point[j] represents
+              pixel.point[pixelOrder[j]] = rawPixel.point[j];
+            }
+          }
+          this.drawPixel(pixel, i);
+          this.pixels.push(pixel);
+        }
+      }
+      UI.setLEDCount(this.pixels.length);
       console.log('Virtual LEDs initialized!');
+    },
+    drawPixel: function(pixel, index) {
+      pixel.texture = this.ledTexture.clone();
+      pixel.mesh = new THREE.Mesh(this.ledGeometry, pixel.texture);
+
+      pixel.texture.color.r = pixel.color.r;
+      pixel.texture.color.g = pixel.color.g;
+      pixel.texture.color.b = pixel.color.b;
+
+      pixel.mesh.position.x = this.config.anchor.x + (pixel.point.x * this.config.scale.x);
+      pixel.mesh.position.y = this.config.anchor.y + (pixel.point.y * this.config.scale.y);
+      pixel.mesh.position.z = this.config.anchor.z + (pixel.point.z * this.config.scale.z);
+
+      World.scene.add(pixel.mesh);
     },
     update: function(pixels) {
       // pixels should be a one-dimensional array of RGB values
