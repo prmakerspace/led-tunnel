@@ -48,7 +48,7 @@ while True:
     for i in range(numChannels):
         if (i in launched):
             start = launched[i] - 1
-            for j in range(start, max(0, start-trailLength), -1):
+            for j in range(start, max(-1, start-trailLength), -1):
                 if (j < ledsPerChannel):
                     index = pixel_index(i, j)
                     #strength = j / ledsPerChannel
