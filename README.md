@@ -60,3 +60,14 @@ Browse through the **[fadecandy/examples](https://github.com/plong0/fadecandy/tr
 The tunnel uses a 48x64 matrix of LEDs.
 
 Fadecandy (and this simulator!) use the [Open Pixel Control](http://openpixelcontrol.org/) protocol.  The fadecandy examples illustrate code that send packets in the OPC format.
+
+#### Tunnel-Ready Examples
+
+With the fadecandy and simulator servers running, open another terminal and try some examples ready for the tunnel.
+
+**Python Examples:**
+```
+cd examples/python/ &&
+ls *.py
+```
+[An article all about how to run a python script on different OS](http://pythoncentral.io/execute-python-script-file-shell/)
