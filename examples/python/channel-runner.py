@@ -1,17 +1,34 @@
 #!/usr/bin/env python3
 
-import opc, time
+import opc, time, sys
+from pprint import pprint
 
 client = opc.Client('localhost:7890')
 
 # fun settings
-launchDelay = 0.25  # value in seconds between channel start
-trailLength = 32    # maximum 64
+configs = {
+    'cyan-orange': {
+        'launchDelay': 0.25,
+        'trailLength': 32,
+        'color1': (0, 255, 255),  # cyan
+        'color2': (255, 153, 0)   # orange
+    },
+    'pink-yellow': {
+        'launchDelay': 0.125,
+        'trailLength': 64,
+        'color1': (255, 0, 255),  # magenta
+        'color2': (255, 255, 0)   # yellow
+    }
+}
 
-#color1 = (255, 0, 255) # magenta
-#color2 = (255, 255, 0) # yellow
-color1 = (0, 255, 255) # cyan
-color2 = (255, 153, 0) # orange
+config_name = next(iter(configs))
+if len(sys.argv) > 1:
+    config_name = sys.argv[1]
+
+if (config_name not in configs):
+    sys.exit('Invalid config name: "{}"'.format(config_name))
+
+config = configs[config_name]
 
 # system settings
 numChannels = 48
@@ -20,15 +37,21 @@ ledsPerChannel = 64
 inverse = True      # if True, start at the back of the tunnel
 frameDelay = 0.01   # delay between frames - controls animation speed (increase to slow down)
 
+if len(sys.argv) > 2:
+    config['trailLength'] = max(0, min(int(sys.argv[2]), ledsPerChannel))
+
+print('RUNNING CONFIG: "{}"'.format(config_name))
+pprint(config)
+
 # setup
-colorShift = (color2[0]-color1[0], color2[1]-color1[1], color2[2]-color1[2])
 currentChannel = 0
 launched = {}
 
 def should_launch():
+    global config
     global launched
     global timer
-    return not launched or time.time() - timer >= launchDelay
+    return not launched or time.time() - timer >= config['launchDelay']
 
 def do_launch(channel):
     global launched
@@ -63,6 +86,9 @@ def pixel_index(channel, index, invert=False, wrap=True):
 
     return result
 
+def color_in_range(color1, color2, position):
+    return (color1[0]+(color2[0]-color1[0])*position, color1[1]+(color2[1]-color1[1])*position, color1[2]+(color2[2]-color1[2])*position)
+
 timer = time.time()
 while True:
     if should_launch():
@@ -75,12 +101,12 @@ while True:
     for i in range(numChannels):
         if (i in launched):
             start = launched[i]['start'] - 1
-            for j in range(start, (start-trailLength), -1):
+            for j in range(start, (start - config['trailLength']), -1):
                 index = pixel_index(i, j, inverse, launched[i]['wrap'])
                 if (index >= 0 and index < len(pixels)):
                     #strength = j / ledsPerChannel
-                    strength = (start - j) / (trailLength - 1)
-                    pixels[index] = (color1[0]+colorShift[0]*strength, color1[1]+colorShift[1]*strength, color1[2]+colorShift[2]*strength)
+                    strength = (start - j) / (config['trailLength'] - 1)
+                    pixels[index] = color_in_range(config['color1'], config['color2'], strength)
 
             launched[i]['start'] += 1
             if (launched[i]['start'] > ledsPerChannel):
