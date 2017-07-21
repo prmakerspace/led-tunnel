@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
+"""Channel Runner sends some gradient bars down each channel
 
-import opc, time, sys
+Try running with optional config name.
+ex. ./channel-runner.py pink-yellow
+"""
+__author__ = 'plong0 <plong00@gmail.com>'
+
+import sys
+import time
 from pprint import pprint
+from LED_Tunnel import Tunnel
 
-client = opc.Client('localhost:7890')
-
-# fun settings
+# fun settings - try adding your own config and playing with the options
 configs = {
     'cyan-orange': {
         'launchDelay': 0.25,
         'trailLength': 32,
-        'color1': (0, 255, 255),  # cyan
-        'color2': (255, 153, 0)   # orange
+        'colour1': (0, 255, 255),  # cyan
+        'colour2': (255, 153, 0)   # orange
     },
     'pink-yellow': {
         'launchDelay': 0.125,
         'trailLength': 64,
-        'color1': (255, 0, 255),  # magenta
-        'color2': (255, 255, 0)   # yellow
+        'colour1': (255, 0, 255),  # magenta
+        'colour2': (255, 255, 0)   # yellow
     }
 }
 
@@ -31,14 +37,12 @@ if (config_name not in configs):
 config = configs[config_name]
 
 # system settings
-numChannels = 48
-ledsPerChannel = 64
-
 inverse = True      # if True, start at the back of the tunnel
 frameDelay = 0.01   # delay between frames - controls animation speed (increase to slow down)
 
+# further customization
 if len(sys.argv) > 2:
-    config['trailLength'] = max(0, min(int(sys.argv[2]), ledsPerChannel))
+    config['trailLength'] = max(0, min(int(sys.argv[2]), TUNNEL.LEDS_PER_CHANNEL))
 
 print('RUNNING CONFIG: "{}"'.format(config_name))
 pprint(config)
@@ -62,56 +66,32 @@ def do_launch(channel):
         return True
     return False
 
-def pixel_index(channel, index, invert=False, wrap=True):
-    global ledsPerChannel
-    # validate index is within bounds or is wrappable
-    if (not wrap and (index < 0 or index >= ledsPerChannel)):
-        return -1
-
-    # wrap the index
-    # careful with index wrapping when translating to other languages
-    # python's modulo works here, some languages calculate it differently
-    # More info: https://stackoverflow.com/questions/3883004/negative-numbers-modulo-in-python
-    index = index % ledsPerChannel
-
-    # calculate channel bounds
-    channelFirst = channel * ledsPerChannel
-    channelLast = channelFirst + ledsPerChannel - 1
-
-    # calculate the index in the full pixel list
-    if (invert):
-        result = channelLast - index
-    else:
-        result = channelFirst + index
-
-    return result
-
-def color_in_range(color1, color2, position):
-    return (color1[0]+(color2[0]-color1[0])*position, color1[1]+(color2[1]-color1[1])*position, color1[2]+(color2[2]-color1[2])*position)
+def colour_in_range(colour1, colour2, position):
+    return (colour1[0]+(colour2[0]-colour1[0])*position, colour1[1]+(colour2[1]-colour1[1])*position, colour1[2]+(colour2[2]-colour1[2])*position)
 
 timer = time.time()
 while True:
     if should_launch():
         if do_launch(currentChannel):
             currentChannel += 1
-            if (currentChannel > numChannels):
+            if (currentChannel > Tunnel.CHANNEL_COUNT):
                 currentChannel = 0
 
-    pixels = [ (0,0,0) ] * numChannels * ledsPerChannel
-    for i in range(numChannels):
+    pixels = [ (0,0,0) ] * Tunnel.LED_COUNT
+    for i in range(Tunnel.CHANNEL_COUNT):
         if (i in launched):
             start = launched[i]['start'] - 1
             for j in range(start, (start - config['trailLength']), -1):
-                index = pixel_index(i, j, inverse, launched[i]['wrap'])
+                index = Tunnel.get_pixel_index(i, j, inverse, launched[i]['wrap'])
                 if (index >= 0 and index < len(pixels)):
                     #strength = j / ledsPerChannel
                     strength = (start - j) / (config['trailLength'] - 1)
-                    pixels[index] = color_in_range(config['color1'], config['color2'], strength)
+                    pixels[index] = colour_in_range(config['colour1'], config['colour2'], strength)
 
             launched[i]['start'] += 1
-            if (launched[i]['start'] > ledsPerChannel):
+            if (launched[i]['start'] > Tunnel.LEDS_PER_CHANNEL):
                 launched[i]['start'] = 1
                 launched[i]['wrap'] = True
 
-    client.put_pixels(pixels)
+    Tunnel.Client.put_pixels(pixels)
     time.sleep(frameDelay)
