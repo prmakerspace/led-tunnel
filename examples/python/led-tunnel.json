@@ -4,11 +4,15 @@
   },
   "patterns": [
     {"cmd": "./channel-runner.py pink-yellow"},
+    {"cmd": "./stars.py blackberry"},
     {"cmd": "./wall-drops.py"},
     {"cmd": "./ringo-pulse.py fire"},
+    {"cmd": "./stars.py"},
     {"cmd": "./wall-drops.py ocean"},
+    {"cmd": "./stars.py blackberry"},
     {"cmd": "./channel-runner.py cyan-orange"},
     {"cmd": "./ringo-pulse.py deep-green"},
+    {"cmd": "./stars.py blackberry"},
     {"cmd": "./audio-levels.py"}
   ]
 }
