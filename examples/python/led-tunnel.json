@@ -3,14 +3,18 @@
     "time": 60
   },
   "patterns": [
+    {"cmd": "./channel-runner.py blackberry"},
     {"cmd": "./channel-runner.py pink-yellow"},
     {"cmd": "./stars.py blackberry"},
     {"cmd": "./wall-drops.py"},
-    {"cmd": "./ringo-pulse.py fire"},
+    {"cmd": "./ringo-pulse.py blackberry"},
+    {"cmd": "./ringo-pulse.py fire", "time": 30},
     {"cmd": "./stars.py"},
+    {"cmd": "./channel-runner.py blackberry", "time": 90},
     {"cmd": "./wall-drops.py ocean"},
     {"cmd": "./stars.py blackberry"},
     {"cmd": "./channel-runner.py cyan-orange"},
+    {"cmd": "./ringo-pulse.py blackberry"},
     {"cmd": "./ringo-pulse.py deep-green"},
     {"cmd": "./stars.py blackberry"},
     {"cmd": "./audio-levels.py"}

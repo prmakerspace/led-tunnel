@@ -25,6 +25,12 @@ configs = {
         'colour2': (192, 0, 0),   # red
         'phase': 7,
         'increment': 0.75
+    },
+    'blackberry': {
+        'colour1': (192, 0, 255),   # purple
+        'colour2': (255, 192, 255), # pale purple
+        'phase': 5,
+        'increment': 0.33
     }
 }
 

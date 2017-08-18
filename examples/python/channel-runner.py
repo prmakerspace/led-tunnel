@@ -24,6 +24,12 @@ configs = {
         'trailLength': 64,
         'colour1': (255, 0, 255),  # magenta
         'colour2': (255, 255, 0)   # yellow
+    },
+    'blackberry': {
+        'launchDelay': 0.25,
+        'trailLength': 48,
+        'colour2': (192, 0, 255),  # purple
+        'colour1': (255, 192, 255) # pale purple
     }
 }
 
