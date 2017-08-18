@@ -1,0 +1,14 @@
+{
+  "default": {
+    "time": 60
+  },
+  "patterns": [
+    {"cmd": "./channel-runner.py pink-yellow"},
+    {"cmd": "./wall-drops.py"},
+    {"cmd": "./ringo-pulse.py fire"},
+    {"cmd": "./wall-drops.py ocean"},
+    {"cmd": "./channel-runner.py cyan-orange"},
+    {"cmd": "./ringo-pulse.py deep-green"},
+    {"cmd": "./audio-levels.py"}
+  ]
+}
