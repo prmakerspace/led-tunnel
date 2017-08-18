@@ -16,6 +16,7 @@ from LED_Tunnel import Tunnel
 configs = {
     'basic': {
         'launchDelay': 0.1,
+        'launchCount': 1,
         'maximum': int(Tunnel.LED_COUNT*2.0/3.0),
         'fadeIn': [0.2, 0.3],
         'lifespan': [1.0, 5.0],
@@ -28,6 +29,7 @@ configs = {
     },
     'blackberry': {
         'launchDelay': 0.0,
+        'launchCount': 1,
         'maximum': int(Tunnel.LED_COUNT*0.75),
         'fadeIn': [0.2, 0.3],
         'lifespan': [1.0, 5.0],
@@ -36,6 +38,28 @@ configs = {
             (192, 0, 255), # purple
             (255, 128, 255), # light purple
             (255, 192, 255) # white
+        ]
+    },
+    'rainbow-sky': {
+        'launchDelay': 0.0,
+        'launchCount': 5,
+        'maximum': int(Tunnel.LED_COUNT),
+        'fadeIn': [0.5, 1.0],
+        'lifespan': [5.0, 10.0],
+        'fadeOut': [0.75, 1.5],
+        'colours': [
+            (128, 0, 0), # dark red
+            (255, 0, 0), # red
+            (255, 165, 0), # orange
+            (255, 192, 0), # orange
+            (255, 255, 0), # yellow
+            (0, 128, 0), # green
+            (0, 255, 0), # green
+            (0, 0, 128), # blue
+            (0, 0, 255), # blue
+            (192, 0, 192), # purple
+            (192, 0, 255), # purple
+            (255, 255, 255), # white
         ]
     }
 };
@@ -81,7 +105,8 @@ def do_launch():
 
 while True:
     if should_launch():
-        do_launch()
+        for i in range(config['launchCount']):
+            do_launch()
 
     pixels = [ (0,0,0) ] * Tunnel.LED_COUNT
     killStars = []
@@ -91,17 +116,26 @@ while True:
         stateTime = time.time() - activeStar['stateStart']
 
         if activeStar['state'] == 0:
-            stateProg = stateTime / activeStar['fadeIn']
+            if activeStar['fadeIn']:
+                stateProg = stateTime / activeStar['fadeIn']
+            else:
+                stateProg = 1.0
             colour1 = (0,0,0)
             colour2 = config['colours'][activeStar['colourIndex']]
 
         elif activeStar['state'] == 1:
-            stateProg = stateTime / activeStar['lifespan']
+            if activeStar['lifespan']:
+                stateProg = stateTime / activeStar['lifespan']
+            else:
+                stateProg = 1.0
             colour1 = config['colours'][activeStar['colourIndex']]
             colour2 = config['colours'][activeStar['colourIndex']]
 
         elif activeStar['state'] == 2:
-            stateProg = stateTime / activeStar['lifespan']
+            if activeStar['fadeOut']:
+                stateProg = stateTime / activeStar['fadeOut']
+            else:
+                stateProg = 1.0
             colour1 = config['colours'][activeStar['colourIndex']]
             colour2 = (0,0,0)
             if stateProg >= 1.0:
