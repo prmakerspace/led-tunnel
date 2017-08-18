@@ -3,6 +3,7 @@
     "time": 60
   },
   "patterns": [
+    {"cmd": "./channel-test.py 48 fast"},
     {"cmd": "./channel-runner.py blackberry"},
     {"cmd": "./channel-runner.py pink-yellow"},
     {"cmd": "./stars.py blackberry"},
@@ -16,7 +17,6 @@
     {"cmd": "./channel-runner.py cyan-orange"},
     {"cmd": "./ringo-pulse.py blackberry"},
     {"cmd": "./ringo-pulse.py deep-green"},
-    {"cmd": "./stars.py blackberry"},
-    {"cmd": "./audio-levels.py"}
+    {"cmd": "./stars.py blackberry"}
   ]
 }

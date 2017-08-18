@@ -27,14 +27,25 @@ LEDS_PER_CHANNEL = 64
 
 CHANNEL_COUNT = 1   # default channel count
 
+SPEED = 'default'
+
 # read channel count from command-line argument
 if len(sys.argv) > 1:
     CHANNEL_COUNT = int(sys.argv[1])
+
+if len(sys.argv) > 2:
+    SPEED = sys.argv[2]
 
 # effect timing
 LAUNCH_DELAY    = 2.0   # how long to wait before launching next channel
 FILL_TIME       = 4.0   # how long to fill one channel
 RESET_DELAY     = 2.0   # how long to freeze on last colour before reset
+
+if SPEED == 'fast':
+    LAUNCH_DELAY    = 0.5   # how long to wait before launching next channel
+    FILL_TIME       = 1.5   # how long to fill one channel
+    RESET_DELAY     = 1.0   # how long to freeze on last colour before reset
+
 
 # fades in between these colours
 colours = [
