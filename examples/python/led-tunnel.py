@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
 """This runs the various patterns for the LED Tunnel.
+
+Example led-tunnel.json configuration:
+
+{
+  "default": {
+    "time": 60
+  },
+  "patterns": [
+    {"cmd": "./channel-runner.py pink-yellow"},
+    {"cmd": "./wall-drops.py", "time": 30},
+  ]
+}
 """
 __author__ = 'plong0 <plong00@gmail.com>'
 
